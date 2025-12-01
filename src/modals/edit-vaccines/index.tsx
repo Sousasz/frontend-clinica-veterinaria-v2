@@ -4,8 +4,8 @@ import { DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog
 import AddVaccinesModal from "../add-vaccines";
 import { FaCheck } from "react-icons/fa6";
 
-import { useState, FormEvent } from "react";
-import { v4 } from "uuid";
+import { useState, FormEvent, useEffect } from "react";
+import { BACKEND_URL } from "@/lib/config";
 
 import { GoPencil, GoTrash } from "react-icons/go";
 
@@ -35,8 +35,23 @@ export default function EditVaccinesModal() {
     setDescription("");
     setVaccineType("for-dogs");
   }
+  useEffect(() => {
+    // carregar vacinas do backend
+    fetch(`${BACKEND_URL}/api/vaccines`)
+      .then((res) => res.json())
+      .then((data) => {
+        const mapped = data.map((v: any) => ({
+          id: v._id,
+          vaccineName: v.name,
+          description: v.description || "",
+          vaccineType: v.type,
+        }));
+        setVaccines(mapped);
+      })
+      .catch((err) => console.error("Erro carregando vacinas:", err));
+  }, []);
 
-  function addVacine(e: FormEvent) {
+  async function addVacine(e: FormEvent) {
     e.preventDefault();
 
     const trimmedName = vaccineName.trim();
@@ -45,15 +60,40 @@ export default function EditVaccinesModal() {
     const duplicate = vaccines.some((v) => v.vaccineName === trimmedName);
     if (duplicate) return;
 
-    const newVaccine: Vaccine = {
-      id: v4(),
-      vaccineName: trimmedName,
-      description,
-      vaccineType,
-    };
+    try {
+      const token = localStorage.getItem('token');
+      const headers: any = { "Content-Type": "application/json" };
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+        headers['x-auth-token'] = token;
+      }
 
-    setVaccines((prev) => [...prev, newVaccine]);
-    resetForm();
+      const res = await fetch(`${BACKEND_URL}/api/vaccines`, {
+        method: "POST",
+        headers,
+        body: JSON.stringify({ name: trimmedName, description, type: vaccineType }),
+      });
+      const result = await res.json();
+      if (res.status === 201 && result.vaccine) {
+        const newVaccine: Vaccine = {
+          id: result.vaccine._id,
+          vaccineName: result.vaccine.name,
+          description: result.vaccine.description || "",
+          vaccineType: result.vaccine.type,
+        };
+        setVaccines((prev) => [...prev, newVaccine]);
+        // sinaliza para outros componentes (carousel) atualizarem
+        window.dispatchEvent(new Event('servicesUpdated'));
+        resetForm();
+        try { (await import('@/lib/utils/toast')).showToast('Vacina adicionada', 'success'); } catch(_) {}
+      } else {
+        console.error("Falha criando vacina:", result);
+        try { (await import('@/lib/utils/toast')).showToast('Falha ao criar vacina', 'error'); } catch(_) {}
+      }
+    } catch (err) {
+      console.error("Erro ao criar vacina:", err);
+      try { (await import('@/lib/utils/toast')).showToast('Erro ao criar vacina', 'error'); } catch(_) {}
+    }
   }
 
   function startInlineEditing(id: string, currentName: string) {
@@ -61,13 +101,38 @@ export default function EditVaccinesModal() {
     setTempName(currentName);
   }
 
-  function saveInlineEdit(id: string) {
+  async function saveInlineEdit(id: string) {
     if (!tempName.trim()) return;
-    setVaccines((prev) =>
-      prev.map((v: Vaccine) =>
-        v.id === id ? { ...v, vacineName: tempName.trim() } : v
-      )
-    );
+    try {
+      const token = localStorage.getItem('token');
+      const headers: any = { "Content-Type": "application/json" };
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+        headers['x-auth-token'] = token;
+      }
+
+      const res = await fetch(`${BACKEND_URL}/api/vaccines/${id}`, {
+        method: "PUT",
+        headers,
+        body: JSON.stringify({ name: tempName.trim() }),
+      });
+      const result = await res.json();
+      if (res.status === 200 && result.vaccine) {
+        setVaccines((prev) =>
+          prev.map((v: Vaccine) =>
+            v.id === id ? { ...v, vaccineName: result.vaccine.name } : v
+          )
+        );
+        window.dispatchEvent(new Event('servicesUpdated'));
+        try { (await import('@/lib/utils/toast')).showToast('Vacina atualizada', 'success'); } catch(_) {}
+      } else {
+        console.error("Falha atualizando vacina:", result);
+        try { (await import('@/lib/utils/toast')).showToast('Falha ao atualizar vacina', 'error'); } catch(_) {}
+      }
+    } catch (err) {
+      console.error("Erro ao atualizar vacina:", err);
+      try { (await import('@/lib/utils/toast')).showToast('Erro ao atualizar vacina', 'error'); } catch(_) {}
+    }
     setEditingItemId(null);
     setTempName("");
   }
@@ -77,9 +142,29 @@ export default function EditVaccinesModal() {
     setTempName("");
   }
 
-  function deleteVacine(id: string) {
-    setVaccines((prev) => prev.filter((v) => v.id !== id));
-    if (editingItemId === id) cancelInlineEdit();
+  async function deleteVacine(id: string) {
+    try {
+      const token = localStorage.getItem('token');
+      const headers: any = {};
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+        headers['x-auth-token'] = token;
+      }
+      const res = await fetch(`${BACKEND_URL}/api/vaccines/${id}`, { method: "DELETE", headers });
+      const result = await res.json();
+      if (res.status === 200) {
+        setVaccines((prev) => prev.filter((v) => v.id !== id));
+        window.dispatchEvent(new Event('servicesUpdated'));
+        if (editingItemId === id) cancelInlineEdit();
+        try { (await import('@/lib/utils/toast')).showToast('Vacina removida', 'success'); } catch(_) {}
+      } else {
+        console.error("Falha removendo vacina:", result);
+        try { (await import('@/lib/utils/toast')).showToast('Falha ao remover vacina', 'error'); } catch(_) {}
+      }
+    } catch (err) {
+      console.error("Erro ao remover vacina:", err);
+      try { (await import('@/lib/utils/toast')).showToast('Erro ao remover vacina', 'error'); } catch(_) {}
+    }
   }
 
   function renderSection(title: string, type: VaccineType) {

@@ -9,16 +9,33 @@ export function useMedicines() {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    fetch(`${BACKEND_URL}/api/medicines`)
-      .then((res) => res.json())
-      .then((data) => {
-        setMedicines(data);
-        setLoading(false);
-      })
-      .catch((err) => {
-        setError(err);
-        setLoading(false);
-      });
+    let mounted = true;
+    const fetchMedicines = () => {
+      setLoading(true);
+      fetch(`${BACKEND_URL}/api/medicines`)
+        .then((res) => res.json())
+        .then((data) => {
+          if (!mounted) return;
+          setMedicines(data);
+          setLoading(false);
+        })
+        .catch((err) => {
+          if (!mounted) return;
+          setError(err);
+          setLoading(false);
+        });
+    };
+
+    fetchMedicines();
+
+    // re-fetch when another part of the app signals an update
+    const handler = () => fetchMedicines();
+    window.addEventListener("servicesUpdated", handler);
+
+    return () => {
+      mounted = false;
+      window.removeEventListener("servicesUpdated", handler);
+    };
   }, []);
 
   return { medicines, loading, error };
@@ -30,16 +47,32 @@ export function useVaccines() {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    fetch(`${BACKEND_URL}/api/vaccines`)
-      .then((res) => res.json())
-      .then((data) => {
-        setVaccines(data);
-        setLoading(false);
-      })
-      .catch((err) => {
-        setError(err);
-        setLoading(false);
-      });
+    let mounted = true;
+    const fetchVaccines = () => {
+      setLoading(true);
+      fetch(`${BACKEND_URL}/api/vaccines`)
+        .then((res) => res.json())
+        .then((data) => {
+          if (!mounted) return;
+          setVaccines(data);
+          setLoading(false);
+        })
+        .catch((err) => {
+          if (!mounted) return;
+          setError(err);
+          setLoading(false);
+        });
+    };
+
+    fetchVaccines();
+
+    const handler = () => fetchVaccines();
+    window.addEventListener("servicesUpdated", handler);
+
+    return () => {
+      mounted = false;
+      window.removeEventListener("servicesUpdated", handler);
+    };
   }, []);
 
   return { vaccines, loading, error };

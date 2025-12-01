@@ -8,8 +8,8 @@ import {
 import AddMedicinesModal from "../add-medicines";
 import { FaCheck } from "react-icons/fa6";
 
-import { useState, FormEvent } from "react";
-import { v4 } from "uuid";
+import { useState, FormEvent, useEffect } from "react";
+import { BACKEND_URL } from "@/lib/config";
 
 import { GoPencil, GoTrash } from "react-icons/go";
 
@@ -40,7 +40,22 @@ export default function EditMedicinesModal() {
     setMedicineType("no-injectables-medicines");
   }
 
-  function addMedicine(e: FormEvent) {
+  useEffect(() => {
+    fetch(`${BACKEND_URL}/api/medicines`)
+      .then((res) => res.json())
+      .then((data) => {
+        const mapped = data.map((m: any) => ({
+          id: m._id,
+          medicineName: m.name,
+          description: m.description || "",
+          medicineType: m.type,
+        }));
+        setMedicines(mapped);
+      })
+      .catch((err) => console.error("Erro carregando medicamentos:", err));
+  }, []);
+
+  async function addMedicine(e: FormEvent) {
     e.preventDefault();
 
     const trimmedName = medicineName.trim();
@@ -49,15 +64,40 @@ export default function EditMedicinesModal() {
     const duplicate = medicines.some((m) => m.medicineName === trimmedName);
     if (duplicate) return;
 
-    const newMedicine: Medicine = {
-      id: v4(),
-      medicineName: trimmedName,
-      description,
-      medicineType,
-    };
+    try {
+      const token = localStorage.getItem('token');
+      const headers: any = { "Content-Type": "application/json" };
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+        headers['x-auth-token'] = token;
+      }
 
-    setMedicines((prev) => [...prev, newMedicine]);
-    resetForm();
+      const res = await fetch(`${BACKEND_URL}/api/medicines`, {
+        method: "POST",
+        headers,
+        body: JSON.stringify({ name: trimmedName, description, type: medicineType }),
+      });
+      const result = await res.json();
+      if (res.status === 201 && result.medicine) {
+        const newMed: Medicine = {
+          id: result.medicine._id,
+          medicineName: result.medicine.name,
+          description: result.medicine.description || "",
+          medicineType: result.medicine.type,
+        };
+        setMedicines((prev) => [...prev, newMed]);
+        // sinaliza para outros componentes (carousel) atualizarem
+        window.dispatchEvent(new Event('servicesUpdated'));
+        resetForm();
+        try { (await import('@/lib/utils/toast')).showToast('Medicamento adicionado', 'success'); } catch(_) {}
+      } else {
+        console.error("Falha criando medicamento:", result);
+        try { (await import('@/lib/utils/toast')).showToast('Falha ao criar medicamento', 'error'); } catch(_) {}
+      }
+    } catch (err) {
+      console.error("Erro ao criar medicamento:", err);
+      try { (await import('@/lib/utils/toast')).showToast('Erro ao criar medicamento', 'error'); } catch(_) {}
+    }
   }
 
   function startInlineEditing(id: string, currentName: string) {
@@ -65,13 +105,33 @@ export default function EditMedicinesModal() {
     setTempName(currentName);
   }
 
-  function saveInlineEdit(id: string) {
+  async function saveInlineEdit(id: string) {
     if (!tempName.trim()) return;
-    setMedicines((prev) =>
-      prev.map((m) =>
-        m.id === id ? { ...m, medicineName: tempName.trim() } : m
-      )
-    );
+    try {
+      const token = localStorage.getItem('token');
+      const headers: any = { "Content-Type": "application/json" };
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+        headers['x-auth-token'] = token;
+      }
+      const res = await fetch(`${BACKEND_URL}/api/medicines/${id}`, {
+        method: "PUT",
+        headers,
+        body: JSON.stringify({ name: tempName.trim() }),
+      });
+      const result = await res.json();
+      if (res.status === 200 && result.medicine) {
+        setMedicines((prev) => prev.map((m) => (m.id === id ? { ...m, medicineName: result.medicine.name } : m)));
+        window.dispatchEvent(new Event('servicesUpdated'));
+        try { (await import('@/lib/utils/toast')).showToast('Medicamento atualizado', 'success'); } catch(_) {}
+      } else {
+        console.error("Falha atualizando medicamento:", result);
+        try { (await import('@/lib/utils/toast')).showToast('Falha ao atualizar medicamento', 'error'); } catch(_) {}
+      }
+    } catch (err) {
+      console.error("Erro ao atualizar medicamento:", err);
+      try { (await import('@/lib/utils/toast')).showToast('Erro ao atualizar medicamento', 'error'); } catch(_) {}
+    }
     setEditingItemId(null);
     setTempName("");
   }
@@ -81,9 +141,29 @@ export default function EditMedicinesModal() {
     setTempName("");
   }
 
-  function deleteMedicine(id: string) {
-    setMedicines((prev) => prev.filter((m) => m.id !== id));
-    if (editingItemId === id) cancelInlineEdit();
+  async function deleteMedicine(id: string) {
+    try {
+      const token = localStorage.getItem('token');
+      const headers: any = {};
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+        headers['x-auth-token'] = token;
+      }
+      const res = await fetch(`${BACKEND_URL}/api/medicines/${id}`, { method: "DELETE", headers });
+      const result = await res.json();
+      if (res.status === 200) {
+        setMedicines((prev) => prev.filter((m) => m.id !== id));
+        window.dispatchEvent(new Event('servicesUpdated'));
+        if (editingItemId === id) cancelInlineEdit();
+        try { (await import('@/lib/utils/toast')).showToast('Medicamento removido', 'success'); } catch(_) {}
+      } else {
+        console.error("Falha removendo medicamento:", result);
+        try { (await import('@/lib/utils/toast')).showToast('Falha ao remover medicamento', 'error'); } catch(_) {}
+      }
+    } catch (err) {
+      console.error("Erro ao remover medicamento:", err);
+      try { (await import('@/lib/utils/toast')).showToast('Erro ao remover medicamento', 'error'); } catch(_) {}
+    }
   }
 
   function renderSection(title: string, type: MedicineType) {
