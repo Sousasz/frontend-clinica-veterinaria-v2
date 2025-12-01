@@ -4,9 +4,9 @@ import { useEffect, useState } from "react";
 import { BACKEND_URL } from "@/lib/config";
 
 export function useMedicines() {
-  const [medicines, setMedicines] = useState([]);
+  const [medicines, setMedicines] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
     let mounted = true;
@@ -14,12 +14,12 @@ export function useMedicines() {
       setLoading(true);
       fetch(`${BACKEND_URL}/api/medicines`)
         .then((res) => res.json())
-        .then((data) => {
+        .then((data: any) => {
           if (!mounted) return;
           setMedicines(data);
           setLoading(false);
         })
-        .catch((err) => {
+        .catch((err: Error) => {
           if (!mounted) return;
           setError(err);
           setLoading(false);
@@ -42,9 +42,9 @@ export function useMedicines() {
 }
 
 export function useVaccines() {
-  const [vaccines, setVaccines] = useState([]);
+  const [vaccines, setVaccines] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
     let mounted = true;
@@ -52,12 +52,12 @@ export function useVaccines() {
       setLoading(true);
       fetch(`${BACKEND_URL}/api/vaccines`)
         .then((res) => res.json())
-        .then((data) => {
+        .then((data: any) => {
           if (!mounted) return;
           setVaccines(data);
           setLoading(false);
         })
-        .catch((err) => {
+        .catch((err: Error) => {
           if (!mounted) return;
           setError(err);
           setLoading(false);

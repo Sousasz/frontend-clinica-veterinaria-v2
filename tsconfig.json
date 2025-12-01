@@ -28,8 +28,7 @@
       ]
     },
     "types": [
-      "node",
-      "glob"
+      "node"
     ]
   },
   "include": [

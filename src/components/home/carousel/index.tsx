@@ -11,19 +11,27 @@ import vaccinationImage from "@/../public/images/vaccination.webp";
 import { useMedicines, useVaccines } from "@/lib/hooks/useServices";
 import Title from "../../ui/title";
 
+type ServiceItem = {
+  imgUrl: any;
+  type: string;
+  name: string;
+  description?: string;
+  category?: string;
+};
+
 export default function ServicesCarousel() {
   const { medicines } = useMedicines();
   const { vaccines } = useVaccines();
 
   // Monta os serviços dinâmicos
-  const services = [
-    ...medicines.map(med => ({
+  const services: ServiceItem[] = [
+    ...medicines.map((med: any) => ({
       imgUrl: med.type === "injectables-medicines" ? injectableMedicineImage : medicineImage,
       type: med.type === "injectables-medicines" ? "Medicação Injetável" : "Medicação",
       name: med.name,
       description: med.description,
     })),
-    ...vaccines.map(vac => ({
+    ...vaccines.map((vac: any) => ({
       imgUrl: vaccinationImage,
       type: "Vacinação",
       name: vac.name,
@@ -37,7 +45,7 @@ export default function ServicesCarousel() {
       <Title>Nossos serviços</Title>
       <Carousel>
         <CarouselContent>
-          {services.map((service, index) => (
+          {services.map((service: ServiceItem, index: number) => (
             <CarouselItem className="basis-1/3 max-w-[90%]" key={index}>
               <CarouselItemContent service={service} />
             </CarouselItem>

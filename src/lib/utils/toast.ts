@@ -1,11 +1,11 @@
 export type ToastType = 'success' | 'error' | 'info';
 
-export function showToast(message: string, type: ToastType = 'info', ttl = 3500) {
+export function showToast(message: string, type: ToastType = 'info', ttl: number = 3500): void {
   if (typeof window === 'undefined') return;
   try {
     const id = `toast-${Date.now()}-${Math.random().toString(36).slice(2,8)}`;
     const containerId = 'global-toasts-container';
-    let container = document.getElementById(containerId);
+    let container = document.getElementById(containerId) as HTMLDivElement | null;
     if (!container) {
       container = document.createElement('div');
       container.id = containerId;
@@ -28,11 +28,11 @@ export function showToast(message: string, type: ToastType = 'info', ttl = 3500)
     toast.style.boxShadow = '0 6px 18px rgba(0,0,0,0.15)';
     toast.style.fontSize = '14px';
 
-    if (type === 'success') toast.style.background = '#16a34a';
-    else if (type === 'error') toast.style.background = '#dc2626';
-    else toast.style.background = '#334155';
+    if (type === 'success') toast.style.backgroundColor = '#16a34a';
+    else if (type === 'error') toast.style.backgroundColor = '#dc2626';
+    else toast.style.backgroundColor = '#334155';
 
-    container.appendChild(toast);
+    if (container) container.appendChild(toast);
 
     setTimeout(() => {
       toast.style.transition = 'opacity 250ms ease, transform 250ms ease';

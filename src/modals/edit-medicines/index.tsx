@@ -66,7 +66,7 @@ export default function EditMedicinesModal() {
 
     try {
       const token = localStorage.getItem('token');
-      const headers: any = { "Content-Type": "application/json" };
+      const headers: Record<string, string> = { "Content-Type": "application/json" };
       if (token) {
         headers['Authorization'] = `Bearer ${token}`;
         headers['x-auth-token'] = token;
@@ -109,7 +109,7 @@ export default function EditMedicinesModal() {
     if (!tempName.trim()) return;
     try {
       const token = localStorage.getItem('token');
-      const headers: any = { "Content-Type": "application/json" };
+      const headers: Record<string, string> = { "Content-Type": "application/json" };
       if (token) {
         headers['Authorization'] = `Bearer ${token}`;
         headers['x-auth-token'] = token;
@@ -144,7 +144,7 @@ export default function EditMedicinesModal() {
   async function deleteMedicine(id: string) {
     try {
       const token = localStorage.getItem('token');
-      const headers: any = {};
+      const headers: Record<string, string> = {};
       if (token) {
         headers['Authorization'] = `Bearer ${token}`;
         headers['x-auth-token'] = token;
