@@ -8,9 +8,6 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 
-import RateForm from "./rate-form";
-
-
 export default function RateConsultModal() {
   return (
     <Dialog>
@@ -28,8 +25,6 @@ export default function RateConsultModal() {
                 Avaliar
               </DialogTitle>
             </DialogHeader>
-
-            <RateForm />
           </div>
         </DialogContent>
       </form>

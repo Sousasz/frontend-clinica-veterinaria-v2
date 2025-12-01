@@ -16,11 +16,13 @@ export function useMedicines() {
         .then((res) => res.json())
         .then((data: any) => {
           if (!mounted) return;
+          console.log("Medicines fetched:", data); // Log para depuração
           setMedicines(data);
           setLoading(false);
         })
         .catch((err: Error) => {
           if (!mounted) return;
+          console.error("Error fetching medicines:", err); // Log para depuração
           setError(err);
           setLoading(false);
         });
@@ -54,11 +56,13 @@ export function useVaccines() {
         .then((res) => res.json())
         .then((data: any) => {
           if (!mounted) return;
+          console.log("Vaccines fetched:", data); // Log para depuração
           setVaccines(data);
           setLoading(false);
         })
         .catch((err: Error) => {
           if (!mounted) return;
+          console.error("Error fetching vaccines:", err); // Log para depuração
           setError(err);
           setLoading(false);
         });
