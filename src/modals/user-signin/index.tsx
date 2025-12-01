@@ -74,8 +74,7 @@ function UserSignInContent() {
   };
 
   if (user) {
-  const username = user.username || user.documentId || 'Usuário';
-  const greeting = user.role === "admin" ? `Olá, ${username}` : `Olá, ${username}`;
+  const greeting = user.role === "admin" ? `Olá administrador` : `Olá, usuário`;
   return (
     <button
       onClick={() => router.push("/user")}
