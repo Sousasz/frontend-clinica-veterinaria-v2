@@ -9,6 +9,7 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/auth-context";
 import { useState } from "react";
 import axios from "axios"; 
+import { BACKEND_URL } from "@/lib/config";
 import type { AxiosError } from "axios";
 import {
   Dialog,
@@ -44,14 +45,11 @@ export default function Users() {
     setLoading(true);
     setDeleteMessage("");
     try {
-      await axios.delete(
-        "https://backend-clinica-veterinaria.onrender.com/api/auth/delete-account",
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        }
-      );
+      await axios.delete(`${BACKEND_URL}/api/auth/delete-account`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
       logout();
       router.push("/");
       setDeleteMessage("Conta excluída com sucesso."); 

@@ -10,6 +10,7 @@ import { useState, useRef, useEffect } from "react";
 
 import pingoImage from "../../../../public/images/pingo.webp";
 import Image from "next/image";
+import { BACKEND_URL } from "@/lib/config";
 
 type Message = {
   role: "user" | "bot";
@@ -43,14 +44,11 @@ export default function Chatbot() {
     setLoading(true);
 
     try {
-      const res = await fetch(
-        "https://backend-clinica-veterinaria.onrender.com/api/chat",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ message: input }),
-        }
-      );
+      const res = await fetch(`${BACKEND_URL}/api/chat`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: input }),
+      });
 
       const data = await res.json();
 
