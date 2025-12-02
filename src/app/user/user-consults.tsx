@@ -5,7 +5,6 @@ import { useAppointments } from "@/contexts/appointments-context";
 import { useAuth } from "@/contexts/auth-context";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import RateConsultModal from "@/modals/rate-consult";
 
 export default function UserConsults() {
   const { appointments, loading } = useAppointments();
@@ -52,8 +51,6 @@ export default function UserConsults() {
                     {consult.hour || (dateVal ? dateVal.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '--:--')}
                   </FormData>
                 </div>
-
-                <RateConsultModal />
               </div>
             </div>
           </div>

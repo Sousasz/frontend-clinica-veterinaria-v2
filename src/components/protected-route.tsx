@@ -18,11 +18,27 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
+    // mark client after mount to avoid SSR mismatch
     setIsClient(true);
-    if (isClient && (!user || user.role !== requiredRole)) {
+  }, []);
+
+  useEffect(() => {
+    if (!isClient) return;
+    // if no user, redirect to home
+    if (!user) {
       router.push("/");
+      return;
     }
-  }, [user, requiredRole, router, isClient]);
+
+    if (user.role !== requiredRole) {
+      // if user is admin but trying to access a user-only page, send to admin dashboard
+      if (user.role === "admin" && requiredRole === "user") {
+        router.push("/admin");
+      } else {
+        router.push("/");
+      }
+    }
+  }, [isClient, user, requiredRole, router]);
 
   if (!isClient || !user) {
     return <div>Carregando...</div>;

@@ -14,13 +14,13 @@ import SignInUserForm from "./signin-user-form";
 import { useState, useEffect, Suspense } from "react";
 import axios from "axios";
 import type { AxiosError } from "axios";
-import { showToast } from '@/lib/utils/toast';
+import { showToast } from "@/lib/utils/toast";
 import { useRouter, useSearchParams } from "next/navigation";
-import { jwtDecode } from 'jwt-decode';
+import { jwtDecode } from "jwt-decode";
 import { useAuth } from "@/contexts/auth-context";
 import { useAppointments } from "@/contexts/appointments-context";
 import { Spinner } from "@/components/ui/spinner";
-import { BACKEND_URL } from '@/lib/config';
+import { BACKEND_URL } from "@/lib/config";
 
 function UserSignInContent() {
   const [documentId, setDocumentId] = useState("");
@@ -46,34 +46,33 @@ function UserSignInContent() {
     const docDigits = documentId.replace(/\D/g, "");
     let hasError = false;
     if (!docDigits || docDigits.length < 8) {
-      setDocumentError('Informe um CPF/RG válido.');
+      setDocumentError("Informe um CPF/RG válido.");
       hasError = true;
     } else {
       setDocumentError(null);
     }
 
     if (!password || password.trim().length < 6) {
-      setPasswordError('Senha com no mínimo 6 caracteres.');
+      setPasswordError("Senha com no mínimo 6 caracteres.");
       hasError = true;
     } else {
       setPasswordError(null);
     }
 
     if (hasError) {
-      try { showToast('Verifique os campos destacados.', 'error'); } catch(_) {}
+      try {
+        showToast("Verifique os campos destacados.", "error");
+      } catch (_) {}
       return;
     }
 
     setLoading(true);
 
     try {
-      const response = await axios.post(
-        `${BACKEND_URL}/api/auth/login`,
-        {
-          cpf: documentId.replace(/\D/g, ""),
-          password,
-        }
-      );
+      const response = await axios.post(`${BACKEND_URL}/api/auth/login`, {
+        cpf: documentId.replace(/\D/g, ""),
+        password,
+      });
 
       // use AuthContext.login to store token and fetch profile
       if (login) {
@@ -82,51 +81,65 @@ function UserSignInContent() {
         localStorage.setItem("token", response.data.token);
       }
 
-      try { showToast('Login realizado com sucesso!', 'success'); } catch(_) {}
+      try {
+        showToast("Login realizado com sucesso!", "success");
+      } catch (_) {}
       // refresh appointments so user dashboard shows current data
-      try { await refreshAppointments(); } catch (e) { /* ignore */ }
+      try {
+        await refreshAppointments();
+      } catch (e) {
+        /* ignore */
+      }
       setOpen(false);
       // decide redirect based on token payload (role may not be available synchronously from context)
       try {
         const decoded = jwtDecode<Record<string, unknown>>(response.data.token);
         const decodedRec = decoded as Record<string, unknown>;
-        const userObjRaw = decodedRec['user'] ?? decodedRec;
+        const userObjRaw = decodedRec["user"] ?? decodedRec;
         const userObj =
-          typeof userObjRaw === 'object' && userObjRaw !== null
+          typeof userObjRaw === "object" && userObjRaw !== null
             ? (userObjRaw as Record<string, unknown>)
             : undefined;
         const role =
-          (userObj && typeof userObj['role'] === 'string'
-            ? (userObj['role'] as string)
-            : typeof decodedRec['role'] === 'string'
-            ? (decodedRec['role'] as string)
-            : 'user');
-        router.push(role === 'admin' ? '/admin' : '/user');
+          userObj && typeof userObj["role"] === "string"
+            ? (userObj["role"] as string)
+            : typeof decodedRec["role"] === "string"
+            ? (decodedRec["role"] as string)
+            : "user";
+        router.push(role === "admin" ? "/admin" : "/user");
       } catch (e) {
         // fallback
-        router.push('/user');
+        router.push("/user");
       }
     } catch (err) {
       const error = err as AxiosError<{ message?: string }>;
       console.error("Erro no login:", error.response?.data || error.message);
-      const msg = error.response?.data?.message || "Erro ao fazer login. Verifique suas credenciais.";
-      try { showToast(msg, 'error'); } catch(_) { console.error(msg); }
+      const msg =
+        error.response?.data?.message ||
+        "Erro ao fazer login. Verifique suas credenciais.";
+      try {
+        showToast(msg, "error");
+      } catch (_) {
+        console.error(msg);
+      }
+    } finally {
+      setLoading(false);
     }
-    finally { setLoading(false); }
   };
 
   if (user) {
-  const greeting = user.role === "admin" ? `Olá administrador` : `Olá, usuário`;
-  return (
-    <button
-      onClick={() => router.push(user.role === 'admin' ? '/admin' : '/user')}
-      className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity"
-    >
-      <span className="text-sm font-medium">{greeting}</span>
-      <Image className="size-10" src={avatarImage} alt="Imagem do usuário" />
-    </button>
-  );
-}
+    const greeting =
+      user.role === "admin" ? `Olá administrador` : `Olá, usuário`;
+    return (
+      <button
+        onClick={() => router.push(user.role === "admin" ? "/admin" : "/user")}
+        className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity"
+      >
+        <span className="text-sm font-medium">{greeting}</span>
+        <Image className="size-10" src={avatarImage} alt="Imagem do usuário" />
+      </button>
+    );
+  }
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -159,7 +172,7 @@ function UserSignInContent() {
           {error && <p className="text-red-500 text-center">{error}</p>}
 
           <Touchable onClick={handleLogin} disabled={loading}>
-            {loading ? 'Entrando...' : 'Entrar'}
+            {loading ? "Entrando..." : "Entrar"}
           </Touchable>
         </div>
       </DialogContent>

@@ -26,7 +26,7 @@ export default function ConsultInfo({
 
       <div className="flex flex-col my-5">
         <div className="flex flex-col">
-          <FormData className="max-[600px]:truncate" fieldLabel="Nome">
+          <FormData className="max-[600px]:truncate" fieldLabel="CPF">
             {consult.clientName}
           </FormData>
 

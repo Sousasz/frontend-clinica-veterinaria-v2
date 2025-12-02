@@ -1,5 +1,6 @@
 import { GoPencil } from "react-icons/go";
 import { LiaCommentDotsSolid } from "react-icons/lia";
+import { FiLogOut } from "react-icons/fi";
 import { IconType } from "react-icons/lib";
 
 type admButtonProps = {
@@ -20,8 +21,8 @@ export const admButtons:admButtonProps = [
         icon: GoPencil,
     },
     {
-        type: "Avaliação",
-        text: "Ver avaliações",
-        icon: LiaCommentDotsSolid,
+        type: "Logout",
+        text: "Sair da conta",
+        icon: FiLogOut,
     },
 ]
