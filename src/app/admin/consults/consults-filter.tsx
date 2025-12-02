@@ -35,19 +35,20 @@ export default function ConsultsFilter() {
       .join(', ');
 
     const scheduled = appt.scheduledAt ?? appt.date ?? undefined;
+    const dateObj = scheduled ? new Date(String(scheduled)) : null;
 
     return {
       consultType: appt.consultType,
       clientName: getString(client, 'username') || '—',
       adress: addressParts || '—',
-      date: scheduled ? new Date(String(scheduled)) : null,
-      hour: appt.hour || (appt.scheduledAt ? new Date(String(appt.scheduledAt)).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''),
+      date: dateObj ? format(dateObj, 'yyyy-MM-dd', { locale: ptBR }) : '—',
+      hour: appt.hour || (dateObj ? dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''),
       raw: appt,
     };
   });
 
-  const filteredConsults = transformed.filter((consult: { date: string | number | Date | null }) => {
-    if (!consult.date) return false;
+  const filteredConsults = transformed.filter((consult: { date: string; raw: FetchedAppointment }) => {
+    if (!consult.date || consult.date === '—') return false;
     const apptDate = new Date(consult.date);
     if (dateRange?.from && apptDate < dateRange.from) return false;
     if (dateRange?.to && apptDate > dateRange.to) return false;
