@@ -1,6 +1,6 @@
 
 type Medicine = {
-  name: string;
+  name?: string;
   description?: string;
 };
 

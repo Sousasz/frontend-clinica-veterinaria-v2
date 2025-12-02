@@ -1,8 +1,9 @@
 
 type Vaccine = {
-  name: string;
+  name?: string;
   description?: string;
-  category?: string; // "cães" ou "gatos"
+  category?: string;
+  type?: string;
 };
 
 interface VaccinesListProps {

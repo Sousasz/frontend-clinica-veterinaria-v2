@@ -2,11 +2,15 @@ import * as React from "react"
 
 import { cn } from "@/lib/utils"
 
+interface AlertProps extends React.HTMLAttributes<HTMLDivElement> {
+  variant?: string;
+}
+
 function Alert({
   className,
   variant,
   ...props
-}: React.ComponentProps<"div">) {
+}: AlertProps) {
   return (
     <div
       data-slot="alert"

@@ -19,7 +19,7 @@ interface Pet {
   breed?: string;
   spayed?: boolean;
   sex?: string;
-  weight?: number;
+  weight?: number | string;
   temperament?: string;
 }
 
@@ -103,28 +103,27 @@ export default function BookingInputs({ petName, onPetNameChange }: BookingInput
 
     const normalizedPetName = normalize(petName);
 
-    // primeiro tenta match exato usando name / nome
-    let found = pets.find(p => normalize(p.name) === normalizedPetName || normalize(p.nome) === normalizedPetName);
+    // primeiro tenta match exato usando name
+    let found = pets.find(p => normalize(p.name) === normalizedPetName);
 
     // se não encontrou, tenta match por includes (ajuda com variações e espaços)
     if (!found && normalizedPetName) {
-      found = pets.find(p => normalize(p.name).includes(normalizedPetName) || normalize(p.nome).includes(normalizedPetName));
+      found = pets.find(p => normalize(p.name).includes(normalizedPetName));
     }
     if (found) {
-      // Permitir campos em inglês (API /api/pets) ou PT-BR (se houver outro model)
-      const specieVal = found.species || found.especie || "";
-      const breedVal = found.breed || found.raca || "";
+      // Usar campos em inglês (API /api/pets)
+      const specieVal = found.species || "";
+      const breedVal = found.breed || "";
 
-      // neutered / castrado
-      const neuteredVal = (typeof found.neutered === 'boolean') ? found.neutered : (typeof found.castrado === 'boolean' ? found.castrado : "");
+      // spayed
+      const neuteredVal = (typeof found.spayed === 'boolean') ? found.spayed : "";
 
-      // sexo / sex
+      // sex
       let sexVal = "";
       if (found.sex) sexVal = found.sex === 'M' ? 'Macho' : (found.sex === 'F' ? 'Fêmea' : found.sex);
-      else if (found.sexo) sexVal = found.sexo;
 
-      // peso pode estar em found.weight (number/string) ou found.peso (pt-br) — cuidar de string vazia
-      const rawWeight = (found.weight !== undefined ? found.weight : found.peso !== undefined ? found.peso : undefined);
+      // weight
+      const rawWeight = found.weight !== undefined ? found.weight : undefined;
       let weightVal: number | string = "";
       if (rawWeight !== undefined && rawWeight !== null && String(rawWeight).trim() !== '') {
         // força número quando possível
@@ -132,7 +131,7 @@ export default function BookingInputs({ petName, onPetNameChange }: BookingInput
         weightVal = !Number.isNaN(asNum) ? asNum : String(rawWeight);
       }
 
-      const temperamentVal = found.temperament || found.temperamento || "";
+      const temperamentVal = found.temperament || "";
 
       setSpecie(specieVal);
       setBreed(breedVal);

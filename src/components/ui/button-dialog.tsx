@@ -1,3 +1,4 @@
+import { JSX } from "react";
 import ActionButton from "../shared/action-button";
 import { IconType } from "react-icons/lib";
 import EditMedicinesModal from "@/modals/edit-medicines";
