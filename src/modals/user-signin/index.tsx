@@ -16,6 +16,7 @@ import axios from "axios";
 import type { AxiosError } from "axios";
 import { showToast } from '@/lib/utils/toast';
 import { useRouter, useSearchParams } from "next/navigation";
+import jwtDecode from 'jwt-decode';
 import { useAuth } from "@/contexts/auth-context";
 import { useAppointments } from "@/contexts/appointments-context";
 import { Spinner } from "@/components/ui/spinner";
@@ -85,7 +86,16 @@ function UserSignInContent() {
       // refresh appointments so user dashboard shows current data
       try { await refreshAppointments(); } catch (e) { /* ignore */ }
       setOpen(false);
-      router.push("/user");
+      // decide redirect based on token payload (role may not be available synchronously from context)
+      try {
+        const decoded = jwtDecode<Record<string, unknown>>(response.data.token);
+        const userObj = (decoded as Record<string, unknown>)['user'] ?? decoded;
+        const role = userObj?.role || 'user';
+        router.push(role === 'admin' ? '/admin' : '/user');
+      } catch (e) {
+        // fallback
+        router.push('/user');
+      }
     } catch (err) {
       const error = err as AxiosError<{ message?: string }>;
       console.error("Erro no login:", error.response?.data || error.message);
@@ -99,7 +109,7 @@ function UserSignInContent() {
   const greeting = user.role === "admin" ? `Olá administrador` : `Olá, usuário`;
   return (
     <button
-      onClick={() => router.push("/user")}
+      onClick={() => router.push(user.role === 'admin' ? '/admin' : '/user')}
       className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity"
     >
       <span className="text-sm font-medium">{greeting}</span>

@@ -20,11 +20,11 @@ export default function EditableData({
   editing,
 }: EditableDataProps) {
   const [isEditing, setIsEditing] = useState(false);
-  const [value, setValue] = useState(children);
+  const [value, setValue] = useState(String(children ?? ""));
 
   // sincroniza valor quando o parent muda o children (por exemplo, ao abrir edição)
   useEffect(() => {
-    setValue(children);
+    setValue(String(children ?? ""));
   }, [children]);
 
   function handleSave() {

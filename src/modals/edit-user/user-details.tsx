@@ -64,25 +64,25 @@ export default function UserDetails() {
             <EditableData
               fieldLabel="CPF/RG"
               editing={isEditing}
-              onChange={(value) => setFormData({ ...formData, documentId: value.replace(/\D/g, '') })}
+              onChange={(value) => setFormData({ ...formData, documentId: (value || '').replace(/\D/g, '') })}
             >
-              {isEditing ? formData.documentId : formatToCPF(user.documentId)}
+              {isEditing ? formData.documentId : formatToCPF(user.documentId || '')}
             </EditableData>
 
             <EditableData
               fieldLabel="Telefone"
               editing={isEditing}
-              onChange={(value) => setFormData({ ...formData, phone: value.replace(/\D/g, '') })}
+              onChange={(value) => setFormData({ ...formData, phone: (value || '').replace(/\D/g, '') })}
             >
-              {isEditing ? formData.phone : formatToPhone(user.phone)}
+              {isEditing ? formData.phone : formatToPhone(user.phone || '')}
             </EditableData>
 
             <EditableData
               fieldLabel="CEP"
               editing={isEditing}
-              onChange={(value) => setFormData({ ...formData, cep: value.replace(/\D/g, '') })}
+              onChange={(value) => setFormData({ ...formData, cep: (value || '').replace(/\D/g, '') })}
             >
-              {isEditing ? formData.cep : formatToCEP(user.cep)}
+              {isEditing ? formData.cep : formatToCEP(user.cep || '')}
             </EditableData>
 
             <EditableData

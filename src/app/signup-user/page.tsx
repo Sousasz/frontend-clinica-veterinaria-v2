@@ -11,7 +11,7 @@ export default function SignUpUser() {
   const router = useRouter();
   useEffect(() => {
     if (user) {
-      router.push("/user");
+      router.push(user.role === 'admin' ? '/admin' : '/user');
     }
   }, [user, router]);
   if (user) {

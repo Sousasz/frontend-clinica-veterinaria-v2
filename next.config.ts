@@ -1,5 +1,6 @@
 import withPWA from "next-pwa";
 import path from "path";
+import type { Configuration } from 'webpack';
 
 const isProd = process.env.NODE_ENV === "production";
 
@@ -14,14 +15,17 @@ const nextConfig = {
       },
     ],
   },
-  webpack: (config: any) => {
-    config.resolve = config.resolve || {};
-    config.resolve.alias = {
-      ...(config.resolve.alias || {}),
+  webpack: (config: Configuration) => {
+    // ensure resolve and alias exist on the config object
+    // Using typed Configuration avoids `any` in the signature
+    const cfg = config as Configuration & { resolve?: { alias?: Record<string, string> } };
+    cfg.resolve = cfg.resolve || {};
+    cfg.resolve.alias = {
+      ...(cfg.resolve.alias || {}),
       // alias to workaround package `exports` pointing to a missing .mjs
       'class-variance-authority$': path.resolve(__dirname, 'node_modules', 'class-variance-authority', 'dist', 'index.js'),
     };
-    return config;
+    return cfg;
   },
 };
 
