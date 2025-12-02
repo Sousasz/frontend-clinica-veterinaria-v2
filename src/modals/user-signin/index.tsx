@@ -89,8 +89,18 @@ function UserSignInContent() {
       // decide redirect based on token payload (role may not be available synchronously from context)
       try {
         const decoded = jwtDecode<Record<string, unknown>>(response.data.token);
-        const userObj = (decoded as Record<string, unknown>)['user'] ?? decoded;
-        const role = userObj?.role || 'user';
+        const decodedRec = decoded as Record<string, unknown>;
+        const userObjRaw = decodedRec['user'] ?? decodedRec;
+        const userObj =
+          typeof userObjRaw === 'object' && userObjRaw !== null
+            ? (userObjRaw as Record<string, unknown>)
+            : undefined;
+        const role =
+          (userObj && typeof userObj['role'] === 'string'
+            ? (userObj['role'] as string)
+            : typeof decodedRec['role'] === 'string'
+            ? (decodedRec['role'] as string)
+            : 'user');
         router.push(role === 'admin' ? '/admin' : '/user');
       } catch (e) {
         // fallback
