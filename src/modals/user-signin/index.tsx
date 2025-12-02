@@ -16,7 +16,7 @@ import axios from "axios";
 import type { AxiosError } from "axios";
 import { showToast } from '@/lib/utils/toast';
 import { useRouter, useSearchParams } from "next/navigation";
-import jwtDecode from 'jwt-decode';
+import { jwtDecode } from 'jwt-decode';
 import { useAuth } from "@/contexts/auth-context";
 import { useAppointments } from "@/contexts/appointments-context";
 import { Spinner } from "@/components/ui/spinner";
