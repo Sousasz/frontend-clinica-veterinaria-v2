@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import MaskedInput from "../masked-input";
 import { Pencil } from "lucide-react";
 
@@ -8,6 +8,7 @@ interface EditableDataProps {
   fieldLabel: string;
   children: string;
   mask?: string;
+  editing?: boolean;
   onChange?: (value: string) => void;
 }
 
@@ -16,14 +17,22 @@ export default function EditableData({
   children,
   onChange,
   mask,
+  editing,
 }: EditableDataProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [value, setValue] = useState(children);
+
+  // sincroniza valor quando o parent muda o children (por exemplo, ao abrir edição)
+  useEffect(() => {
+    setValue(children);
+  }, [children]);
 
   function handleSave() {
     setIsEditing(false);
     if (onChange) onChange(value);
   }
+
+  const showInput = Boolean(editing) || isEditing;
 
   return (
     <div className="flex items-center gap-1">
@@ -31,7 +40,7 @@ export default function EditableData({
         {fieldLabel}:
       </label>
 
-      {isEditing ? (
+      {showInput ? (
         <MaskedInput
           type="text"
           mask={mask}
@@ -39,7 +48,11 @@ export default function EditableData({
           value={value}
           autoFocus
           onBlur={handleSave}
-          onChange={(e) => setValue(e.target.value ?? "")}
+          onChange={(e) => {
+            const v = (e.target as HTMLInputElement).value ?? "";
+            setValue(v);
+            if (onChange) onChange(v);
+          }}
         />
       ) : (
         <>

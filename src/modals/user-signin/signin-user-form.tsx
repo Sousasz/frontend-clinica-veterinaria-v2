@@ -9,6 +9,8 @@ interface SignInUserFormProps {
   setDocumentId: React.Dispatch<React.SetStateAction<string>>;
   password: string;
   setPassword: React.Dispatch<React.SetStateAction<string>>;
+  documentError?: string | null;
+  passwordError?: string | null;
 }
 
 export default function SignInUserForm({
@@ -16,29 +18,49 @@ export default function SignInUserForm({
   setDocumentId,
   password,
   setPassword,
+  documentError = null,
+  passwordError = null,
 }: SignInUserFormProps) {
   return (
-    <div className="flex flex-col justify-center items-center gap-5">
+    <div className="flex flex-col justify-center items-center gap-5 w-full">
       <div className="flex flex-col gap-3 w-[90%]">
-        <MaskedInput
-          name="cpf-rg"
-          placeholder="CPF/RG"
-          mask="999.999.999-99"
-          value={documentId}
-          onChange={(e: InputMaskChangeEvent) =>
-            setDocumentId(e.target.value ?? "")
-          }
-        />
+        <div>
+          <MaskedInput
+            name="cpf-rg"
+            placeholder="CPF/RG"
+            mask="999.999.999-99"
+            value={documentId}
+            onChange={(e: InputMaskChangeEvent) =>
+              setDocumentId(e.target.value ?? "")
+            }
+            aria-invalid={documentError ? "true" : "false"}
+            aria-describedby={documentError ? "document-error" : undefined}
+          />
+          {documentError ? (
+            <p id="document-error" className="text-red-500 text-sm mt-1">
+              {documentError}
+            </p>
+          ) : null}
+        </div>
 
-        <Input
-          name="password"
-          type="password"
-          placeholder="Senha"
-          value={password}
-          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-            setPassword(e.target.value)
-          }
-        />
+        <div>
+          <Input
+            name="password"
+            type="password"
+            placeholder="Senha"
+            value={password}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+              setPassword(e.target.value)
+            }
+            aria-invalid={passwordError ? "true" : "false"}
+            aria-describedby={passwordError ? "password-error" : undefined}
+          />
+          {passwordError ? (
+            <p id="password-error" className="text-red-500 text-sm mt-1">
+              {passwordError}
+            </p>
+          ) : null}
+        </div>
       </div>
 
       <span className="flex flex-col justify-center font-poppins text-sm text-center">

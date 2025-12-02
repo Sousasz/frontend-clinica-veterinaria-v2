@@ -14,6 +14,7 @@ import SignInUserForm from "./signin-user-form";
 import { useState, useEffect, Suspense } from "react";
 import axios from "axios";
 import type { AxiosError } from "axios";
+import { showToast } from '@/lib/utils/toast';
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/contexts/auth-context";
 import { useAppointments } from "@/contexts/appointments-context";
@@ -24,6 +25,9 @@ function UserSignInContent() {
   const [documentId, setDocumentId] = useState("");
   const [password, setPassword] = useState("");
   const [error] = useState("");
+  const [documentError, setDocumentError] = useState<string | null>(null);
+  const [passwordError, setPasswordError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -37,10 +41,29 @@ function UserSignInContent() {
   }, [searchParams]);
 
   const handleLogin = async () => {
-    if (!documentId.trim() || !password.trim()) {
-      alert("CPF/RG e senha são obrigatórios.");
+    // local validation
+    const docDigits = documentId.replace(/\D/g, "");
+    let hasError = false;
+    if (!docDigits || docDigits.length < 8) {
+      setDocumentError('Informe um CPF/RG válido.');
+      hasError = true;
+    } else {
+      setDocumentError(null);
+    }
+
+    if (!password || password.trim().length < 6) {
+      setPasswordError('Senha com no mínimo 6 caracteres.');
+      hasError = true;
+    } else {
+      setPasswordError(null);
+    }
+
+    if (hasError) {
+      try { showToast('Verifique os campos destacados.', 'error'); } catch(_) {}
       return;
     }
+
+    setLoading(true);
 
     try {
       const response = await axios.post(
@@ -58,7 +81,7 @@ function UserSignInContent() {
         localStorage.setItem("token", response.data.token);
       }
 
-      alert("Login realizado com sucesso!");
+      try { showToast('Login realizado com sucesso!', 'success'); } catch(_) {}
       // refresh appointments so user dashboard shows current data
       try { await refreshAppointments(); } catch (e) { /* ignore */ }
       setOpen(false);
@@ -66,11 +89,10 @@ function UserSignInContent() {
     } catch (err) {
       const error = err as AxiosError<{ message?: string }>;
       console.error("Erro no login:", error.response?.data || error.message);
-      alert(
-        error.response?.data?.message ||
-          "Erro ao fazer login. Verifique suas credenciais."
-      );
+      const msg = error.response?.data?.message || "Erro ao fazer login. Verifique suas credenciais.";
+      try { showToast(msg, 'error'); } catch(_) { console.error(msg); }
     }
+    finally { setLoading(false); }
   };
 
   if (user) {
@@ -110,11 +132,15 @@ function UserSignInContent() {
             setDocumentId={setDocumentId}
             password={password}
             setPassword={setPassword}
+            documentError={documentError}
+            passwordError={passwordError}
           />
 
           {error && <p className="text-red-500 text-center">{error}</p>}
 
-          <Touchable onClick={handleLogin}>Entrar</Touchable>
+          <Touchable onClick={handleLogin} disabled={loading}>
+            {loading ? 'Entrando...' : 'Entrar'}
+          </Touchable>
         </div>
       </DialogContent>
     </Dialog>

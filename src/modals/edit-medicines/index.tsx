@@ -87,8 +87,10 @@ export default function EditMedicinesModal() {
           medicineType: result.medicine.type,
         };
         setMedicines((prev) => [...prev, newMed]);
-        // sinaliza para outros componentes (carousel) atualizarem
+        // Dispara evento na mesma aba
         window.dispatchEvent(new Event('servicesUpdated'));
+        // Notifica outras abas via localStorage
+        localStorage.setItem('medicinesUpdated', Date.now().toString());
         resetForm();
         try { (await import('@/lib/utils/toast')).showToast('Medicamento adicionado', 'success'); } catch(_) {}
       } else {
@@ -123,7 +125,10 @@ export default function EditMedicinesModal() {
       const result = await res.json();
       if (res.status === 200 && result.medicine) {
         setMedicines((prev) => prev.map((m) => (m.id === id ? { ...m, medicineName: result.medicine.name } : m)));
+        // Dispara evento na mesma aba
         window.dispatchEvent(new Event('servicesUpdated'));
+        // Notifica outras abas via localStorage
+        localStorage.setItem('medicinesUpdated', Date.now().toString());
         try { (await import('@/lib/utils/toast')).showToast('Medicamento atualizado', 'success'); } catch(_) {}
       } else {
         console.error("Falha atualizando medicamento:", result);
@@ -149,14 +154,17 @@ export default function EditMedicinesModal() {
       if (token) {
         headers['Authorization'] = `Bearer ${token}`;
         headers['x-auth-token'] = token;
-      }
-      const res = await fetch(`${BACKEND_URL}/api/medicines/${id}`, { method: "DELETE", headers });
-      const result = await res.json();
       if (res.status === 200) {
         setMedicines((prev) => prev.filter((m) => m.id !== id));
+        // Dispara evento na mesma aba
         window.dispatchEvent(new Event('servicesUpdated'));
+        // Notifica outras abas via localStorage
+        localStorage.setItem('medicinesUpdated', Date.now().toString());
         if (editingItemId === id) cancelInlineEdit();
         try { (await import('@/lib/utils/toast')).showToast('Medicamento removido', 'success'); } catch(_) {}
+      } else {
+        console.error("Falha removendo medicamento:", result);
+        try { (await import('@/lib/utils/toast')).showToast('Falha ao remover medicamento', 'error'); } catch(_) {}
       } else {
         console.error("Falha removendo medicamento:", result);
         try { (await import('@/lib/utils/toast')).showToast('Falha ao remover medicamento', 'error'); } catch(_) {}

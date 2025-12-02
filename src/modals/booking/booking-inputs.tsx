@@ -12,10 +12,21 @@ interface BookingInputsProps {
   onPetNameChange: (v: string) => void;
 }
 
+interface Pet {
+  _id: string;
+  name: string;
+  species?: string;
+  breed?: string;
+  spayed?: boolean;
+  sex?: string;
+  weight?: number;
+  temperament?: string;
+}
+
 export default function BookingInputs({ petName, onPetNameChange }: BookingInputsProps) {
   const { user } = useAuth();
 
-  const [pets, setPets] = useState<any[]>([]);
+  const [pets, setPets] = useState<Pet[]>([]);
   // petName agora vem do pai (BookingForm)
   const [specie, setSpecie] = useState("");
   const [breed, setBreed] = useState("");
@@ -84,7 +95,7 @@ export default function BookingInputs({ petName, onPetNameChange }: BookingInput
     }
 
     // procura pet do usuário pelo nome exato (insensível a maiúsculas) ou por campo 'nome'
-    const normalize = (s: any) =>
+    const normalize = (s: string | undefined) =>
       (s || "")
         .toString()
         .toLowerCase()

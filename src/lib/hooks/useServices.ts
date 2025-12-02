@@ -32,13 +32,13 @@ export function useMedicines() {
         .then((res) => res.json())
         .then((data: MedicineItem[]) => {
           if (!mounted) return;
-          console.log("Medicines fetched:", data); // Log para depuração
+          console.log("Medicines fetched:", data);
           setMedicines(data || []);
           setLoading(false);
         })
         .catch((err: Error) => {
           if (!mounted) return;
-          console.error("Error fetching medicines:", err); // Log para depuração
+          console.error("Error fetching medicines:", err);
           setError(err);
           setLoading(false);
         });
@@ -46,13 +46,22 @@ export function useMedicines() {
 
     fetchMedicines();
 
-    // re-fetch when another part of the app signals an update
-    const handler = () => fetchMedicines();
-    window.addEventListener("servicesUpdated", handler);
+    // Listener para eventos dentro da mesma aba
+    const handleServicesUpdated = () => fetchMedicines();
+    window.addEventListener("servicesUpdated", handleServicesUpdated);
+
+    // Listener para mudanças de localStorage (sincroniza entre abas)
+    const handleStorageChange = (event: StorageEvent) => {
+      if (event.key === "medicinesUpdated") {
+        fetchMedicines();
+      }
+    };
+    window.addEventListener("storage", handleStorageChange);
 
     return () => {
       mounted = false;
-      window.removeEventListener("servicesUpdated", handler);
+      window.removeEventListener("servicesUpdated", handleServicesUpdated);
+      window.removeEventListener("storage", handleStorageChange);
     };
   }, []);
 
@@ -72,13 +81,13 @@ export function useVaccines() {
         .then((res) => res.json())
         .then((data: VaccineItem[]) => {
           if (!mounted) return;
-          console.log("Vaccines fetched:", data); // Log para depuração
+          console.log("Vaccines fetched:", data);
           setVaccines(data || []);
           setLoading(false);
         })
         .catch((err: Error) => {
           if (!mounted) return;
-          console.error("Error fetching vaccines:", err); // Log para depuração
+          console.error("Error fetching vaccines:", err);
           setError(err);
           setLoading(false);
         });
@@ -86,12 +95,22 @@ export function useVaccines() {
 
     fetchVaccines();
 
-    const handler = () => fetchVaccines();
-    window.addEventListener("servicesUpdated", handler);
+    // Listener para eventos dentro da mesma aba
+    const handleServicesUpdated = () => fetchVaccines();
+    window.addEventListener("servicesUpdated", handleServicesUpdated);
+
+    // Listener para mudanças de localStorage (sincroniza entre abas)
+    const handleStorageChange = (event: StorageEvent) => {
+      if (event.key === "vaccinesUpdated") {
+        fetchVaccines();
+      }
+    };
+    window.addEventListener("storage", handleStorageChange);
 
     return () => {
       mounted = false;
-      window.removeEventListener("servicesUpdated", handler);
+      window.removeEventListener("servicesUpdated", handleServicesUpdated);
+      window.removeEventListener("storage", handleStorageChange);
     };
   }, []);
 

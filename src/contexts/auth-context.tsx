@@ -1,7 +1,7 @@
 'use client';
 
 import { ReactNode, createContext, useState, useEffect, useContext } from 'react';
-import jwtDecode from 'jwt-decode';
+import { jwtDecode } from 'jwt-decode';
 
 import { BACKEND_URL } from '@/lib/config';
 

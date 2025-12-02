@@ -39,8 +39,8 @@ export default function EditVaccinesModal() {
     // carregar vacinas do backend
     fetch(`${BACKEND_URL}/api/vaccines`)
       .then((res) => res.json())
-      .then((data) => {
-        const mapped = data.map((v: any) => ({
+      .then((data: Array<{ _id: string; name: string; description?: string; type: VaccineType }>) => {
+        const mapped = data.map((v) => ({
           id: v._id,
           vaccineName: v.name,
           description: v.description || "",
@@ -82,8 +82,10 @@ export default function EditVaccinesModal() {
           vaccineType: result.vaccine.type,
         };
         setVaccines((prev) => [...prev, newVaccine]);
-        // sinaliza para outros componentes (carousel) atualizarem
+        // Dispara evento na mesma aba
         window.dispatchEvent(new Event('servicesUpdated'));
+        // Notifica outras abas via localStorage
+        localStorage.setItem('vaccinesUpdated', Date.now().toString());
         resetForm();
         try { (await import('@/lib/utils/toast')).showToast('Vacina adicionada', 'success'); } catch(_) {}
       } else {
@@ -123,7 +125,10 @@ export default function EditVaccinesModal() {
             v.id === id ? { ...v, vaccineName: result.vaccine.name } : v
           )
         );
+        // Dispara evento na mesma aba
         window.dispatchEvent(new Event('servicesUpdated'));
+        // Notifica outras abas via localStorage
+        localStorage.setItem('vaccinesUpdated', Date.now().toString());
         try { (await import('@/lib/utils/toast')).showToast('Vacina atualizada', 'success'); } catch(_) {}
       } else {
         console.error("Falha atualizando vacina:", result);
@@ -149,14 +154,17 @@ export default function EditVaccinesModal() {
       if (token) {
         headers['Authorization'] = `Bearer ${token}`;
         headers['x-auth-token'] = token;
-      }
-      const res = await fetch(`${BACKEND_URL}/api/vaccines/${id}`, { method: "DELETE", headers });
-      const result = await res.json();
       if (res.status === 200) {
         setVaccines((prev) => prev.filter((v) => v.id !== id));
+        // Dispara evento na mesma aba
         window.dispatchEvent(new Event('servicesUpdated'));
+        // Notifica outras abas via localStorage
+        localStorage.setItem('vaccinesUpdated', Date.now().toString());
         if (editingItemId === id) cancelInlineEdit();
         try { (await import('@/lib/utils/toast')).showToast('Vacina removida', 'success'); } catch(_) {}
+      } else {
+        console.error("Falha removendo vacina:", result);
+        try { (await import('@/lib/utils/toast')).showToast('Falha ao remover vacina', 'error'); } catch(_) {}
       } else {
         console.error("Falha removendo vacina:", result);
         try { (await import('@/lib/utils/toast')).showToast('Falha ao remover vacina', 'error'); } catch(_) {}

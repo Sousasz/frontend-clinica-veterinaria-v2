@@ -4,6 +4,7 @@ import Touchable from "@/components/ui/touchable";
 import { formatToCPF, formatToCEP, formatToPhone } from "brazilian-values";
 import { DialogClose } from "@/components/ui/dialog";
 import { useAuth } from "@/contexts/auth-context";
+import { showToast } from '@/lib/utils/toast';
 
 export default function UserDetails() {
   const { user, updateUser } = useAuth();
@@ -18,16 +19,20 @@ export default function UserDetails() {
     addressStreet: user?.addressStreet || "",
     addressNeighborhood: user?.addressNeighborhood || "",
   });
+  const [loading, setLoading] = useState(false);
 
   // Função para salvar edições
   const handleSave = async () => {
+    setLoading(true);
     try {
       await updateUser(formData);
       setIsEditing(false);
-      alert("Dados atualizados com sucesso!");
+      try { showToast('Dados atualizados com sucesso!', 'success'); } catch(_) {}
     } catch (error) {
       console.error("Erro ao salvar:", error);
-      alert("Erro ao salvar dados. Tente novamente.");
+      try { showToast('Erro ao salvar dados. Tente novamente.', 'error'); } catch(_) {}
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -58,6 +63,7 @@ export default function UserDetails() {
 
             <EditableData
               fieldLabel="CPF/RG"
+              editing={isEditing}
               onChange={(value) => setFormData({ ...formData, documentId: value.replace(/\D/g, '') })}
             >
               {isEditing ? formData.documentId : formatToCPF(user.documentId)}
@@ -65,6 +71,7 @@ export default function UserDetails() {
 
             <EditableData
               fieldLabel="Telefone"
+              editing={isEditing}
               onChange={(value) => setFormData({ ...formData, phone: value.replace(/\D/g, '') })}
             >
               {isEditing ? formData.phone : formatToPhone(user.phone)}
@@ -72,6 +79,7 @@ export default function UserDetails() {
 
             <EditableData
               fieldLabel="CEP"
+              editing={isEditing}
               onChange={(value) => setFormData({ ...formData, cep: value.replace(/\D/g, '') })}
             >
               {isEditing ? formData.cep : formatToCEP(user.cep)}
@@ -79,6 +87,7 @@ export default function UserDetails() {
 
             <EditableData
               fieldLabel="Número"
+              editing={isEditing}
               onChange={(value) => setFormData({ ...formData, addressNumber: value })}
             >
               {isEditing ? formData.addressNumber : user.addressNumber}
@@ -86,6 +95,7 @@ export default function UserDetails() {
 
             <EditableData
               fieldLabel="Complemento"
+              editing={isEditing}
               onChange={(value) => setFormData({ ...formData, addressComplement: value })}
             >
               {isEditing ? formData.addressComplement : user.addressComplement || ""}
@@ -93,6 +103,7 @@ export default function UserDetails() {
 
             <EditableData
               fieldLabel="Endereço"
+              editing={isEditing}
               onChange={(value) => setFormData({ ...formData, addressStreet: value })}
             >
               {isEditing ? formData.addressStreet : user.addressStreet}
@@ -100,6 +111,7 @@ export default function UserDetails() {
 
             <EditableData
               fieldLabel="Bairro"
+              editing={isEditing}
               onChange={(value) => setFormData({ ...formData, addressNeighborhood: value })}
             >
               {isEditing ? formData.addressNeighborhood : user.addressNeighborhood}
@@ -111,8 +123,10 @@ export default function UserDetails() {
       <div className="flex gap-4 justify-center">
         {isEditing ? (
           <>
-            <Touchable onClick={handleSave}>Salvar</Touchable>
-            <Touchable onClick={handleCancel}>Cancelar</Touchable>
+            <Touchable onClick={handleSave} disabled={loading}>
+              {loading ? 'Salvando...' : 'Salvar'}
+            </Touchable>
+            <Touchable onClick={handleCancel} disabled={loading}>Cancelar</Touchable>
           </>
         ) : (
           <Touchable onClick={() => setIsEditing(true)}>Editar</Touchable>
