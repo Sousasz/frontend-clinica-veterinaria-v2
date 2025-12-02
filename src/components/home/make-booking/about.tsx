@@ -11,14 +11,16 @@ export default function About() {
         alt="Imagem da Doutora Joyce"
       />
       <p className="max-w-[536px] text-shadow-2xs">
-        Lorem ipsum dolor sit amet consectetur. Faucibus a et et molestie urna
-        sit eget mauris. Ullamcorper erat faucibus enim tortor semper dignissim
-        turpis cursus. Blandit in eget quis pulvinar. Varius fringilla pharetra
-        magnis potenti. In at ligula neque tellus amet vulputate justo. Enim
-        feugiat urna quam auctor sollicitudin in faucibus sit nec. Quam faucibus
-        amet elementum id id mattis vitae sollicitudin enim. Cursus nunc nulla
-        aliquam integer lectus diam. Vel cras nulla lacus neque. Rhoncus posuere
-        ultrices libero consequat sit.
+        Desde cedo, a paixão e o amor incondicional pelos animais definiram a
+        vocação da Dra. Joyce, que nunca considerou outra carreira. Com uma
+        formação sólida, sua jornada começou com o curso técnico em Veterinária
+        (2012-2013), estabelecendo as bases de seu conhecimento. Em 2015, ingressou
+        na Universidade Paulista (UNIP-SP), concluindo sua graduação em 202. 
+        Atualmente, a Dra. joyce é uma profissional dedicada à Clinica Geral,
+        garantindo o bem-estar e saúde preventiva dos seus pets. Sua expertise é
+        completada por uma especialização em técnicas cirurgícas de cães e gatos,
+        o que qualifica a oferecer um cuidado completo e de alta precisão no conforto
+        do seu lar.
       </p>
     </div>
   );

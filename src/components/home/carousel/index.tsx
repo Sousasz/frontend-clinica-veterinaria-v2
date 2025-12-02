@@ -14,6 +14,7 @@ import Title from "../../ui/title";
 
 type ServiceItem = {
   imgUrl: StaticImageData | string;
+  id?: string;
   type: string;
   name: string;
   description?: string;
@@ -27,12 +28,14 @@ export default function ServicesCarousel() {
   // Monta os serviços dinâmicos
   const services: ServiceItem[] = [
     ...medicines.map((med: MedicineItem) => ({
+      id: med._id as string | undefined,
       imgUrl: med.type === "injectables-medicines" ? injectableMedicineImage : medicineImage,
       type: med.type === "injectables-medicines" ? "Medicação Injetável" : "Medicação",
       name: med.name || '',
       description: med.description,
     })),
     ...vaccines.map((vac: VaccineItem) => ({
+      id: vac._id as string | undefined,
       imgUrl: vaccinationImage,
       type: "Vacinação",
       name: vac.name || '',
@@ -42,13 +45,15 @@ export default function ServicesCarousel() {
   ];
 
   // Remove duplicates for display only (preserve original data for editing)
-  const uniqueServices: ServiceItem[] = services.reduce((acc: ServiceItem[], svc) => {
-    const exists = acc.find(
-      (s) => (s.name && svc.name && s.name === svc.name && s.type === svc.type) || (s.name === svc.name && s.type === svc.type)
-    );
-    if (!exists) acc.push(svc);
-    return acc;
-  }, []);
+  // Prefer deduplication by unique id when available; fall back to type+name key.
+  const uniqueServices: ServiceItem[] = (() => {
+    const map = new Map<string, ServiceItem>();
+    for (const svc of services) {
+      const key = svc.id ? svc.id : `${svc.type}:::${svc.name}`;
+      if (!map.has(key)) map.set(key, svc);
+    }
+    return Array.from(map.values());
+  })();
 
   const isLoading = medicinesLoading || vaccinesLoading;
 
@@ -67,7 +72,7 @@ export default function ServicesCarousel() {
         <Carousel>
           <CarouselContent>
             {uniqueServices.map((service: ServiceItem, index: number) => (
-              <CarouselItem className="basis-1/3 max-w-[90%]" key={`${service.type}-${service.name || index}`}>
+              <CarouselItem className="basis-1/3 max-w-[90%]" key={service.id ?? `${service.type}-${service.name || index}`}>
                 <CarouselItemContent service={service} />
               </CarouselItem>
             ))}
