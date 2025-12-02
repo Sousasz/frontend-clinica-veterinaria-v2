@@ -7,7 +7,7 @@ import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import Image, { StaticImageData } from "next/image";
 
 type Service = {
-  imgUrl: StaticImageData;
+  imgUrl: StaticImageData | string;
   type: string;
 };
 
