@@ -2,6 +2,7 @@ import ConsultDetailsModal from "@/modals/consults-details";
 import FormData from "@/components/shared/form-data";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { FetchedAppointment } from "@/lib/hooks/useAllAppointments";
 import { GoTrash } from "react-icons/go";
 import { showToast } from "@/lib/utils/toast";
 import { BACKEND_URL } from "@/lib/config";
@@ -12,7 +13,7 @@ type Consult = {
   adress: string;
   date: string;
   hour: string;
-  raw?: any;
+  raw?: FetchedAppointment;
 };
 
 type ConsultInfoProps = {
@@ -73,7 +74,7 @@ export default function ConsultInfo({
         <div className="flex max-[600px]:flex-col max-[600px]:gap-5 justify-between w-full">
           <div className="flex max-[600px]:flex-col max-[600px]:gap-0.5 gap-3">
             <FormData fieldLabel="Data">
-              {format(consult.date, "dd/MM/yyyy", { locale: ptBR })}
+              {consult.date && consult.date !== '—' ? format(new Date(consult.date), "dd/MM/yyyy", { locale: ptBR }) : '—'}
             </FormData>
             <FormData fieldLabel="Hora">{consult.hour}</FormData>
           </div>

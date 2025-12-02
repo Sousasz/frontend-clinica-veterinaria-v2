@@ -18,6 +18,7 @@ interface Pet {
   species?: string;
   breed?: string;
   spayed?: boolean;
+  neutered?: boolean; // backend may use 'neutered'
   sex?: string;
   weight?: number | string;
   temperament?: string;
@@ -116,7 +117,9 @@ export default function BookingInputs({ petName, onPetNameChange }: BookingInput
       const breedVal = found.breed || "";
 
       // spayed/neutered (backend may use 'neutered')
-      const neuteredVal = (typeof (found as any).neutered === 'boolean') ? (found as any).neutered : (typeof (found as any).spayed === 'boolean' ? (found as any).spayed : "");
+      const neuteredVal: boolean | "" = (typeof found.neutered === 'boolean')
+        ? found.neutered
+        : (typeof found.spayed === 'boolean' ? found.spayed : "");
 
       // sex
       let sexVal = "";
