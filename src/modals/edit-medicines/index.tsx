@@ -154,6 +154,11 @@ export default function EditMedicinesModal() {
       if (token) {
         headers['Authorization'] = `Bearer ${token}`;
         headers['x-auth-token'] = token;
+      }
+      const res = await fetch(`${BACKEND_URL}/api/medicines/${id}`, {
+        method: "DELETE",
+        headers,
+      });
       if (res.status === 200) {
         setMedicines((prev) => prev.filter((m) => m.id !== id));
         // Dispara evento na mesma aba
@@ -163,10 +168,7 @@ export default function EditMedicinesModal() {
         if (editingItemId === id) cancelInlineEdit();
         try { (await import('@/lib/utils/toast')).showToast('Medicamento removido', 'success'); } catch(_) {}
       } else {
-        console.error("Falha removendo medicamento:", result);
-        try { (await import('@/lib/utils/toast')).showToast('Falha ao remover medicamento', 'error'); } catch(_) {}
-      } else {
-        console.error("Falha removendo medicamento:", result);
+        console.error("Falha removendo medicamento:", res.statusText);
         try { (await import('@/lib/utils/toast')).showToast('Falha ao remover medicamento', 'error'); } catch(_) {}
       }
     } catch (err) {

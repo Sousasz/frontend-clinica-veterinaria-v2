@@ -154,6 +154,11 @@ export default function EditVaccinesModal() {
       if (token) {
         headers['Authorization'] = `Bearer ${token}`;
         headers['x-auth-token'] = token;
+      }
+      const res = await fetch(`${BACKEND_URL}/api/vaccines/${id}`, {
+        method: "DELETE",
+        headers,
+      });
       if (res.status === 200) {
         setVaccines((prev) => prev.filter((v) => v.id !== id));
         // Dispara evento na mesma aba
@@ -163,10 +168,7 @@ export default function EditVaccinesModal() {
         if (editingItemId === id) cancelInlineEdit();
         try { (await import('@/lib/utils/toast')).showToast('Vacina removida', 'success'); } catch(_) {}
       } else {
-        console.error("Falha removendo vacina:", result);
-        try { (await import('@/lib/utils/toast')).showToast('Falha ao remover vacina', 'error'); } catch(_) {}
-      } else {
-        console.error("Falha removendo vacina:", result);
+        console.error("Falha removendo vacina:", res.statusText);
         try { (await import('@/lib/utils/toast')).showToast('Falha ao remover vacina', 'error'); } catch(_) {}
       }
     } catch (err) {
