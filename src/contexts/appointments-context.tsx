@@ -1,7 +1,6 @@
 'use client'
 
 import { ReactNode, createContext, useContext, useState, useEffect } from 'react';
-import { useAuth } from './auth-context';
 
 import { BACKEND_URL } from '@/lib/config';
 
@@ -60,9 +59,10 @@ export const AppointmentsProvider = ({ children }: { children: ReactNode }) => {
         const body = await res.json();
         setAppointments(body || []);
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Erro fetch appointments:', err);
-      setError('Erro ao buscar agendamentos');
+      const msg = err instanceof Error ? err.message : String(err);
+      setError(msg || 'Erro ao buscar agendamentos');
       setAppointments([]);
     } finally {
       setLoading(false);

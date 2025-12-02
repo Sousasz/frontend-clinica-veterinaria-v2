@@ -5,7 +5,7 @@ import { format } from "date-fns";
 import { FiCalendar } from "react-icons/fi";
 import { ptBR } from "date-fns/locale";
 import { DateRange } from "react-day-picker";
-import { useAllAppointments } from "@/lib/hooks/useAllAppointments";
+import { useAllAppointments, FetchedAppointment } from "@/lib/hooks/useAllAppointments";
 
 import ConsultInfo from "./consult-info";
 import { Button } from "@/components/ui/button";
@@ -22,19 +22,26 @@ export default function ConsultsFilter() {
   const { appointments, loading, error, refresh } = useAllAppointments();
 
   // transforma appointments para o formato esperado por ConsultInfo
-  const transformed = appointments.map((appt: any) => {
-    const client = appt.client || {};
-    const pet = appt.pet || {};
-    const addressParts = [client.addressStreet, client.addressNumber, client.addressNeighborhood]
+  const getString = (obj: Record<string, unknown> | undefined, key: string) => {
+    const v = obj?.[key];
+    return typeof v === 'string' ? v : undefined;
+  };
+
+  const transformed = appointments.map((appt: FetchedAppointment) => {
+    const client = appt.client as Record<string, unknown> | undefined;
+    const pet = appt.pet as Record<string, unknown> | undefined;
+    const addressParts = [getString(client, 'addressStreet'), getString(client, 'addressNumber'), getString(client, 'addressNeighborhood')]
       .filter(Boolean)
       .join(', ');
 
+    const scheduled = appt.scheduledAt ?? appt.date ?? undefined;
+
     return {
       consultType: appt.consultType,
-      clientName: client.username || '—',
+      clientName: getString(client, 'username') || '—',
       adress: addressParts || '—',
-      date: appt.scheduledAt ? new Date(appt.scheduledAt) : appt.date ? new Date(appt.date) : null,
-      hour: appt.hour || (appt.scheduledAt ? new Date(appt.scheduledAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''),
+      date: scheduled ? new Date(String(scheduled)) : null,
+      hour: appt.hour || (appt.scheduledAt ? new Date(String(appt.scheduledAt)).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''),
       raw: appt,
     };
   });

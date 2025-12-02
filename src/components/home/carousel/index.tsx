@@ -8,11 +8,12 @@ import CarouselItemContent from "./carousel-item-content";
 import medicineImage from "@/../public/images/medicine.webp";
 import injectableMedicineImage from "@/../public/images/injectable-medicine.webp";
 import vaccinationImage from "@/../public/images/vaccination.webp";
-import { useMedicines, useVaccines } from "@/lib/hooks/useServices";
+import { useMedicines, useVaccines, MedicineItem, VaccineItem } from "@/lib/hooks/useServices";
+import type { StaticImageData } from 'next/image';
 import Title from "../../ui/title";
 
 type ServiceItem = {
-  imgUrl: any;
+  imgUrl: StaticImageData | string;
   type: string;
   name: string;
   description?: string;
@@ -25,16 +26,16 @@ export default function ServicesCarousel() {
 
   // Monta os serviços dinâmicos
   const services: ServiceItem[] = [
-    ...medicines.map((med: any) => ({
+    ...medicines.map((med: MedicineItem) => ({
       imgUrl: med.type === "injectables-medicines" ? injectableMedicineImage : medicineImage,
       type: med.type === "injectables-medicines" ? "Medicação Injetável" : "Medicação",
-      name: med.name,
+      name: med.name || '',
       description: med.description,
     })),
-    ...vaccines.map((vac: any) => ({
+    ...vaccines.map((vac: VaccineItem) => ({
       imgUrl: vaccinationImage,
       type: "Vacinação",
-      name: vac.name,
+      name: vac.name || '',
       description: vac.description,
       category: vac.type === "for-dogs" ? "Para cães" : "Para gatos",
     })),

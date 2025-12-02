@@ -1,10 +1,21 @@
 import { useEffect, useState, useCallback } from "react";
 import { BACKEND_URL } from "@/lib/config";
 
+export type FetchedAppointment = {
+  _id?: string;
+  consultType?: string;
+  scheduledAt?: string;
+  date?: string;
+  hour?: string;
+  client?: Record<string, unknown>;
+  pet?: Record<string, unknown>;
+  [key: string]: unknown;
+};
+
 export function useAllAppointments() {
-  const [appointments, setAppointments] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [appointments, setAppointments] = useState<FetchedAppointment[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
 
   const fetchAll = useCallback(async () => {
     setLoading(true);
@@ -26,8 +37,9 @@ export function useAllAppointments() {
         const data = await res.json();
         setAppointments(data || []);
       }
-    } catch (err) {
-      setError(err as any);
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : String(err);
+      setError(message);
       setAppointments([]);
     } finally {
       setLoading(false);

@@ -1,7 +1,7 @@
 'use client';
 
 import { ReactNode, createContext, useState, useEffect, useContext } from 'react';
-import { jwtDecode } from 'jwt-decode';
+import jwtDecode from 'jwt-decode';
 
 import { BACKEND_URL } from '@/lib/config';
 
@@ -91,21 +91,23 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       }
 
       try {
-        const decoded = jwtDecode(token);
-        const decodedAny = decoded as any;
+        const decoded = jwtDecode<Record<string, unknown>>(token);
+        const decodedAny = decoded as Record<string, unknown>;
         // try to fetch profile; fetchUserData will not clear token unless 401
         const ok = await fetchUserData(token);
         // if profile fetch failed transiently, restore a minimal user object from token so UI stays logged
         if (!ok) {
           console.warn('[AuthProvider] profile fetch failed, restoring minimal user from token payload');
           // decoded may be { id, role } or { user: { id, role } }
-          const userId = decodedAny?.user?.id || decodedAny?.id;
-          const role = decodedAny?.user?.role || decodedAny?.role || 'user';
+          const userObj = decodedAny['user'] as Record<string, unknown> | undefined;
+          const userId = (userObj?.['id'] as string | undefined) || (decodedAny['id'] as string | undefined);
+          const role = (userObj?.['role'] as string | undefined) || (decodedAny['role'] as string | undefined) || 'user';
           setUser({ id: userId, username: '', role, documentId: '', dateOfBirth: '', phone: '', cep: '', addressNumber: '', addressStreet: '', addressNeighborhood: '' });
         }
-      } catch (err: any) {
+      } catch (err: unknown) {
         // token not decodable: consider invalid — clear and stop
-        console.error('Token decode failed:', err?.message || err);
+        const message = err instanceof Error ? err.message : String(err);
+        console.error('Token decode failed:', message);
         logout();
       } finally {
         setLoading(false);

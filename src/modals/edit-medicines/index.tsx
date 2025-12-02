@@ -44,11 +44,12 @@ export default function EditMedicinesModal() {
     fetch(`${BACKEND_URL}/api/medicines`)
       .then((res) => res.json())
       .then((data) => {
-        const mapped = data.map((m: any) => ({
-          id: m._id,
-          medicineName: m.name,
+        type FetchedMed = { _id?: string; name?: string; description?: string; type?: MedicineType };
+        const mapped = (Array.isArray(data) ? data as FetchedMed[] : []).map((m) => ({
+          id: m._id || '',
+          medicineName: m.name || '',
           description: m.description || "",
-          medicineType: m.type,
+          medicineType: (m.type as MedicineType) || 'no-injectables-medicines',
         }));
         setMedicines(mapped);
       })

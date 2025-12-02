@@ -1,11 +1,27 @@
-'use client'
+"use client"
 
 import { useEffect, useState } from "react";
 import { BACKEND_URL } from "@/lib/config";
 
+export type MedicineItem = {
+  _id?: string;
+  name?: string;
+  description?: string;
+  type?: string;
+  [k: string]: unknown;
+};
+
+export type VaccineItem = {
+  _id?: string;
+  name?: string;
+  description?: string;
+  type?: string;
+  [k: string]: unknown;
+};
+
 export function useMedicines() {
-  const [medicines, setMedicines] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [medicines, setMedicines] = useState<MedicineItem[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
@@ -14,10 +30,10 @@ export function useMedicines() {
       setLoading(true);
       fetch(`${BACKEND_URL}/api/medicines`)
         .then((res) => res.json())
-        .then((data: any) => {
+        .then((data: MedicineItem[]) => {
           if (!mounted) return;
           console.log("Medicines fetched:", data); // Log para depuração
-          setMedicines(data);
+          setMedicines(data || []);
           setLoading(false);
         })
         .catch((err: Error) => {
@@ -44,8 +60,8 @@ export function useMedicines() {
 }
 
 export function useVaccines() {
-  const [vaccines, setVaccines] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [vaccines, setVaccines] = useState<VaccineItem[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
@@ -54,10 +70,10 @@ export function useVaccines() {
       setLoading(true);
       fetch(`${BACKEND_URL}/api/vaccines`)
         .then((res) => res.json())
-        .then((data: any) => {
+        .then((data: VaccineItem[]) => {
           if (!mounted) return;
           console.log("Vaccines fetched:", data); // Log para depuração
-          setVaccines(data);
+          setVaccines(data || []);
           setLoading(false);
         })
         .catch((err: Error) => {

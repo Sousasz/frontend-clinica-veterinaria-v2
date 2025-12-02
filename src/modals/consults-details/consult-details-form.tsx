@@ -8,9 +8,15 @@ type Consult = {
   consultType?: string;
   clientName?: string;
   adress?: string;
-  date?: any;
+  date?: string | Date | null;
   hour?: string;
-  raw?: any;
+  raw?: {
+    scheduledAt?: string;
+    pet?: { name?: string; species?: string } | null;
+    client?: { username?: string; addressStreet?: string; addressNumber?: string; addressNeighborhood?: string } | null;
+    description?: string;
+    [k: string]: unknown;
+  } | null;
   description?: string;
 };
 

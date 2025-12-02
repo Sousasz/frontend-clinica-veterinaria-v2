@@ -15,9 +15,9 @@ type Consult = {
   consultType?: string;
   clientName?: string;
   adress?: string;
-  date?: any;
+  date?: string | Date | null;
   hour?: string;
-  raw?: any;
+  raw?: Record<string, unknown> | null;
 };
 
 export default function ConsultDetailsModal({ consult }: { consult: Consult }) {
