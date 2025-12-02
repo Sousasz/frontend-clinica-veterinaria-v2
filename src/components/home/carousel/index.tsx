@@ -41,6 +41,15 @@ export default function ServicesCarousel() {
     })),
   ];
 
+  // Remove duplicates for display only (preserve original data for editing)
+  const uniqueServices: ServiceItem[] = services.reduce((acc: ServiceItem[], svc) => {
+    const exists = acc.find(
+      (s) => (s.name && svc.name && s.name === svc.name && s.type === svc.type) || (s.name === svc.name && s.type === svc.type)
+    );
+    if (!exists) acc.push(svc);
+    return acc;
+  }, []);
+
   const isLoading = medicinesLoading || vaccinesLoading;
 
   return (
@@ -57,8 +66,8 @@ export default function ServicesCarousel() {
       ) : (
         <Carousel>
           <CarouselContent>
-            {services.map((service: ServiceItem, index: number) => (
-              <CarouselItem className="basis-1/3 max-w-[90%]" key={index}>
+            {uniqueServices.map((service: ServiceItem, index: number) => (
+              <CarouselItem className="basis-1/3 max-w-[90%]" key={`${service.type}-${service.name || index}`}>
                 <CarouselItemContent service={service} />
               </CarouselItem>
             ))}
