@@ -115,8 +115,8 @@ export default function BookingInputs({ petName, onPetNameChange }: BookingInput
       const specieVal = found.species || "";
       const breedVal = found.breed || "";
 
-      // spayed
-      const neuteredVal = (typeof found.spayed === 'boolean') ? found.spayed : "";
+      // spayed/neutered (backend may use 'neutered')
+      const neuteredVal = (typeof (found as any).neutered === 'boolean') ? (found as any).neutered : (typeof (found as any).spayed === 'boolean' ? (found as any).spayed : "");
 
       // sex
       let sexVal = "";
@@ -135,7 +135,7 @@ export default function BookingInputs({ petName, onPetNameChange }: BookingInput
 
       setSpecie(specieVal);
       setBreed(breedVal);
-      setSpayed(neuteredVal);
+      setSpayed(neuteredVal === "" ? "" : (neuteredVal ? 'Sim' : 'Não'));
       setSex(sexVal);
       setWeight(weightVal);
       setTemperament(temperamentVal);
@@ -146,7 +146,7 @@ export default function BookingInputs({ petName, onPetNameChange }: BookingInput
     const derived = deriveAttributesFromName(petName);
     setSpecie(derived.especie || "");
     setBreed(derived.raca || "");
-    setSpayed(derived.castrado ?? "");
+    setSpayed(typeof derived.castrado === 'boolean' ? (derived.castrado ? 'Sim' : 'Não') : "");
     setSex(derived.sexo || "");
     setWeight(derived.peso ?? "");
     setTemperament(derived.temperamento || "");

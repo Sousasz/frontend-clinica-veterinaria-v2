@@ -113,7 +113,9 @@ export default function ConsultsFilter() {
           <p className="text-sm text-red-500">Erro ao carregar consultas.</p>
         ) : filteredConsults.length > 0 ? (
           filteredConsults.map((consult, index) => (
-            <ConsultInfo consult={consult} key={index} />
+            <div key={index}>
+              <ConsultInfo consult={consult} onDelete={refresh} />
+            </div>
           ))
         ) : (
           <p className="text-sm text-gray-500">Nenhuma consulta encontrada.</p>
